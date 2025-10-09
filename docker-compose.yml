@@ -25,11 +25,6 @@ services:
       - "ACCEPT_EULA=Y"
     volumes:
       - sql_data:/var/opt/mssql
-    # healthcheck:
-    #   test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "123456", "-Q", "SELECT 1"]
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 5
 
   vendas:
     build: ./MicroServicoVendas
@@ -38,21 +33,31 @@ services:
         condition: service_healthy
     ports:
       - "5001:8080"
-    environment:
-      - "ConnectionStrings__DefaultConnection=Server=sqlserver;Database=DBVendas;User Id=sa;Password=Sandro@f450;TrustServerCertificate=True;"
-      - "ConnectionStrings__RabbitMq=amqp://guest:guest@rabbitmq:5672/"
+    env_file:
+      - .env.vendas
+    # environment:
+    #   - "ConnectionStrings__DefaultConnection=Server=sqlserver;Database=DBVendas;User Id=sa;Password=Sandro@f450;TrustServerCertificate=True;"
+    #   - "ConnectionStrings__RabbitMq=amqp://guest:guest@rabbitmq:5672/"
 
   estoque:
     build: ./MicroServicoEstoque
     ports:
       - "5002:8080"
-    environment:
-      - "ConnectionStrings__DefaultConnection=Server=sqlserver;Database=DBEstoque;User Id=sa;Password=Sandro@f450;TrustServerCertificate=True;"
+    env_file:
+      - .env.estoque
+    # environment:
+    #   - "ConnectionStrings__DefaultConnection=Server=sqlserver;Database=DBEstoque;User Id=sa;Password=Sandro@f450;TrustServerCertificate=True;"
 
   apigateway:
     build: ./APIGateway
     ports:
       - "5003:8080"
+    env_file:
+      - .env.gateway
+    depends_on:
+      - authentication
+      - vendas
+      - estoque
 
   authentication:
     build: ./MicroServicoAuthentication
@@ -61,8 +66,10 @@ services:
         condition: service_started
     ports:
       - "5004:8080"
-    environment:
-      - "ConnectionStrings__DefaultConnection=Server=sqlserver;Database=DBLogin;User Id=sa;Password=Sandro@f450;TrustServerCertificate=True;"
-      - "GATEWAY_SECRET=0c19d6a1323fdab3a6202e9173bf3502549b7765b8f3e6f1e4d4c8e4f3a2b1c"
+    env_file:
+      - .env.authentication
+    # environment:
+    #   - "ConnectionStrings__DefaultConnection=Server=sqlserver;Database=DBLogin;User Id=sa;Password=Sandro@f450;TrustServerCertificate=True;"
+    #   - "GATEWAY_SECRET=0c19d6a1323fdab3a6202e9173bf3502549b7765b8f3e6f1e4d4c8e4f3a2b1c"
 volumes:
   sql_data:

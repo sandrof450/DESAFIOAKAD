@@ -170,3 +170,4 @@ C:\Users\sandr\Desktop\DesafioAKAD\MicroServicoVendas\obj\Debug\net8.0\MicroServ
 C:\Users\sandr\Desktop\DesafioAKAD\MicroServicoVendas\obj\Debug\net8.0\ref\MicroServicoVendas.dll
 C:\Users\sandr\Desktop\DesafioAKAD\MicroServicoVendas\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\sandr\Desktop\DesafioAKAD\MicroServicoVendas\bin\Debug\net8.0\RabbitMQ.Client.dll
+C:\Users\sandr\Desktop\DesafioAKAD\MicroServicoVendas\obj\Debug\net8.0\MicroServicoVendas.sourcelink.json
