@@ -170,3 +170,4 @@ C:\Users\sandr\Desktop\DesafioAKAD\MicroServicoEstoque\obj\Debug\net8.0\MicroSer
 C:\Users\sandr\Desktop\DesafioAKAD\MicroServicoEstoque\obj\Debug\net8.0\ref\MicroServicoEstoque.dll
 C:\Users\sandr\Desktop\DesafioAKAD\MicroServicoEstoque\bin\Debug\net8.0\RabbitMQ.Client.dll
 C:\Users\sandr\Desktop\DesafioAKAD\MicroServicoEstoque\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\sandr\Desktop\DesafioAKAD\MicroServicoEstoque\obj\Debug\net8.0\MicroServicoEstoque.sourcelink.json
