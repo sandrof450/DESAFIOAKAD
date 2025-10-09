@@ -1,0 +1,6 @@
+@MicroServicoEstoque_HostAddress = http://localhost:5117
+
+GET {{MicroServicoEstoque_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
