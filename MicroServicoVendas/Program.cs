@@ -13,14 +13,6 @@ using MicroServicoVendas.RabbitMQ.Consumers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// No .NET, os valores definidos em variáveis de ambiente sobrescrevem automaticamente
-// as configurações do appsettings.json durante a execução, inclusive em ambientes como o Render.
-#region Define que os valores de configuração podem vir de variáveis de ambiente
-builder.Configuration
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .AddEnvironmentVariables();
-#endregion
-
 #region Configuração de autenticação JWT no microserviço de estoque.
 var jwtKey = builder.Configuration["Jwt:Key"];
 if (string.IsNullOrEmpty(jwtKey)) throw new Exception("JWT Key is not configured.");
@@ -40,6 +32,14 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
     };
 });
+#endregion
+
+// No .NET, os valores definidos em variáveis de ambiente sobrescrevem automaticamente
+// as configurações do appsettings.json durante a execução, inclusive em ambientes como o Render.
+#region Define que os valores de configuração podem vir de variáveis de ambiente
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddEnvironmentVariables();
 #endregion
 
 builder.Services.AddControllers();
