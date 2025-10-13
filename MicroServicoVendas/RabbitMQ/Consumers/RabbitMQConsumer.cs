@@ -14,8 +14,9 @@ namespace MicroServicoVendas.RabbitMQ.Consumers
 
         public RabbitMQConsumer(IConfiguration configuration, ILogger<RabbitMQConsumer> logger)
         {
-            
-            var uri = new Uri(configuration["RabbitMQ:Uri"] ?? "amqps://rsclvuno:***@jaragua.lmq.cloudamqp.com/rsclvuno ");
+            Console.WriteLine($"[DEBUG] RabbitMQ URI: {configuration["RabbitMQ:Uri"] ?? "amqps://rsclvuno:***@jaragua.lmq.cloudamqp.com/rsclvuno"}");
+            Console.WriteLine($"[DEBUG] RabbitMQ Queue: {configuration["RabbitMQ:Queue"] ?? "vendaNotification"}");
+            var uri = new Uri(configuration["RabbitMQ:Uri"] ?? "amqps://rsclvuno:***@jaragua.lmq.cloudamqp.com/rsclvuno");
             _logger = logger;
             _queueName = configuration["RabbitMQ:Queue"] ?? "vendaNotification";
             _factory = new ConnectionFactory
@@ -23,9 +24,6 @@ namespace MicroServicoVendas.RabbitMQ.Consumers
                 Uri = uri,
                 DispatchConsumersAsync = true //Importante para AsyncEvetingBasicConsumer
             };
-
-            Console.WriteLine($"[DEBUG] RabbitMQ URI: {uri}");
-            Console.WriteLine($"[DEBUG] RabbitMQ Queue: {_queueName}");
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
