@@ -96,7 +96,6 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 builder.Services.AddLogging();
 builder.Services.AddHostedService<RabbitMQConsumer>();
 
