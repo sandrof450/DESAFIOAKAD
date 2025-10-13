@@ -14,6 +14,8 @@ namespace MicroServicoVendas.RabbitMQ.Consumers
 
         public RabbitMQConsumer(IConfiguration configuration, ILogger<RabbitMQConsumer> logger)
         {
+            Console.WriteLine($"[DEBUG] RabbitMQ URI: {configuration["RabbitMQ:Uri"]}");
+            Console.WriteLine($"[DEBUG] RabbitMQ Queue: {configuration["RabbitMQ:Queue"]}");
             var uri = new Uri(configuration["RabbitMQ:Uri"] ?? throw new Exception("RabbitMQ URI is not configured."));
             _logger = logger;
             _queueName = configuration["RabbitMQ:Queue"] ?? throw new Exception("RabbitMQ Queue name is not configured.");
