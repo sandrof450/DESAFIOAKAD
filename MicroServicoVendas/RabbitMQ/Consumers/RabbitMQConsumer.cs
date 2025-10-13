@@ -16,9 +16,9 @@ namespace MicroServicoVendas.RabbitMQ.Consumers
         {
             Console.WriteLine($"[DEBUG] RabbitMQ URI: {configuration["RabbitMQ:Uri"]}");
             Console.WriteLine($"[DEBUG] RabbitMQ Queue: {configuration["RabbitMQ:Queue"]}");
-            var uri = new Uri(configuration["RabbitMQ:Uri"] ?? throw new Exception("RabbitMQ URI is not configured."));
+            var uri = new Uri(configuration["RabbitMQ:Uri"] ?? "amqps://rsclvuno:***@jaragua.lmq.cloudamqp.com/rsclvuno ");
             _logger = logger;
-            _queueName = configuration["RabbitMQ:Queue"] ?? throw new Exception("RabbitMQ Queue name is not configured.");
+            _queueName = configuration["RabbitMQ:Queue"] ?? "vendaNotification";
             _factory = new ConnectionFactory
             {
                 Uri = uri,
