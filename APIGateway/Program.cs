@@ -25,6 +25,10 @@ builder.Services.AddAuthentication("Bearer")
 builder.Services.AddAuthorization();
 #endregion
 
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddEnvironmentVariables();
+
 #region 🔑 Configuração YARP
 var apiKey = Environment.GetEnvironmentVariable("GATEWAY_SECRET");
 if (string.IsNullOrEmpty(apiKey)) apiKey =  builder.Configuration["ApiKey:Key"];
@@ -76,7 +80,7 @@ builder.Services.AddReverseProxy()
             ClusterId = "loginCluster",
             Destinations = new Dictionary<string, DestinationConfig>
             {
-                { "dest1", new DestinationConfig { Address = "http://authentication:8080" } }//http://localhost:[numero da porta do microservico] -- Para teste local
+                { "dest1", new DestinationConfig { Address = "https://akad-authentication.onrender.com" } }//http://localhost:[numero da porta do microservico] || http://authentication:8080 -- Para teste local
             }
         },
         #endregion
@@ -87,7 +91,7 @@ builder.Services.AddReverseProxy()
             ClusterId = "vendasCluster",
             Destinations = new Dictionary<string, DestinationConfig>
             {
-                { "dest1", new DestinationConfig { Address = "http://vendas:8080" } }//http://localhost:[numero da porta do microservico] -- Para teste local
+                { "dest1", new DestinationConfig { Address = "https://akad-vendas.onrender.com" } }//http://localhost:[numero da porta do microservico] || http://vendas:8080 -- Para teste local
             }
         },
         #endregion
@@ -98,7 +102,7 @@ builder.Services.AddReverseProxy()
             ClusterId = "estoqueCluster",
             Destinations = new Dictionary<string, DestinationConfig>
             {
-                { "dest1", new DestinationConfig { Address = "http://estoque:8080" } }//http://localhost:[numero da porta do microservico] -- Para teste local
+                { "dest1", new DestinationConfig { Address = "https://desafioakad.onrender.com" } }//http://localhost:[numero da porta do microservico] || http://estoque:8080 -- Para teste local
             }
         }
         #endregion
@@ -108,7 +112,6 @@ builder.Services.AddReverseProxy()
 builder.WebHost.ConfigureKestrel(options =>
 {
     options.ListenAnyIP(8080);
-    // options.ListenAnyIP(5138);
 });
 
 var app = builder.Build();
