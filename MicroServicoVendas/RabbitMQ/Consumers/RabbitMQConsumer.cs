@@ -14,9 +14,9 @@ namespace MicroServicoVendas.RabbitMQ.Consumers
 
         public RabbitMQConsumer(IConfiguration configuration, ILogger<RabbitMQConsumer> logger)
         {
-            Console.WriteLine($"[DEBUG] RabbitMQ URI: {configuration["RabbitMQ:Uri"] ?? "amqps://rsclvuno:***@jaragua.lmq.cloudamqp.com/rsclvuno"}");
+            Console.WriteLine($"[DEBUG] RabbitMQ URI: {configuration["RabbitMQ:Uri"] ?? "amqps://rsclvuno:BdbI1Gflk5yY3CDst7oN9cbxOeWZCffb@jaragua.lmq.cloudamqp.com/rsclvuno"}");
             Console.WriteLine($"[DEBUG] RabbitMQ Queue: {configuration["RabbitMQ:Queue"] ?? "vendaNotification"}");
-            var uri = new Uri(configuration["RabbitMQ:Uri"] ?? "amqps://rsclvuno:***@jaragua.lmq.cloudamqp.com/rsclvuno");
+            var uri = new Uri(configuration["RabbitMQ:Uri"] ?? "amqps://rsclvuno:BdbI1Gflk5yY3CDst7oN9cbxOeWZCffb@jaragua.lmq.cloudamqp.com/rsclvuno");
             _logger = logger;
             _queueName = configuration["RabbitMQ:Queue"] ?? "vendaNotification";
             _factory = new ConnectionFactory
