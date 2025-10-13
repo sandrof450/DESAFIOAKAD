@@ -40,6 +40,9 @@ builder.Services.AddAuthentication(options =>
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables();
+// Para depurar e verificar se as configurações estão sendo carregadas
+Console.WriteLine($"[DEBUG] RabbitMQ URI: {builder.Configuration["RabbitMQ:Uri"]}");
+Console.WriteLine($"[DEBUG] RabbitMQ Queue: {builder.Configuration["RabbitMQ:Queue"]}");
 #endregion
 
 builder.Services.AddControllers();
