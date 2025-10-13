@@ -20,7 +20,7 @@ namespace MicroServicoVendas.RabbitMQ.Consumers
 
         public RabbitMQConsumer(IConfiguration configuration, ILogger<RabbitMQConsumer> logger)
         {
-            var uri = new Uri(configuration.GetConnectionString("RabbitMq") ?? "amqp://guest:guest@localhost:5672/");
+            var uri = new Uri(configuration.GetConnectionString("RabbitMq") ?? "amqps://rsclvuno:BdbI1Gflk5yY3CDst7oN9cbxOeWZCffb@jaragua.lmq.cloudamqp.com/rsclvuno/");
             _logger = logger;
             _queueName = configuration["RabbitMQ:Queue"] ?? "vendaNotification";
             _factory = new ConnectionFactory
