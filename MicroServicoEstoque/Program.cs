@@ -14,7 +14,13 @@ var builder = WebApplication.CreateBuilder(args);
 var jwtKey = builder.Configuration["Jwt:Key"];
 if (string.IsNullOrEmpty(jwtKey)) throw new Exception("JWT Key is not configured.");
 
-// Add services to the container.
+// No .NET, os valores definidos em variáveis de ambiente sobrescrevem automaticamente
+// as configurações do appsettings.json durante a execução, inclusive em ambientes como o Render.
+#region Define que os valores de configuração podem vir de variáveis de ambiente
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddEnvironmentVariables();
+#endregion
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -77,13 +83,6 @@ builder.Services.AddSingleton<IRabbitMQPublisher, RabbitMQPublisher>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-// if (app.Environment.IsDevelopment())
-// {
-//     app.UseSwagger();
-//     app.UseSwaggerUI();
-// }
-
 app.UseSwagger();
 app.UseSwaggerUI();
 
@@ -93,5 +92,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapGet("/", context =>
+{
+    context.Response.Redirect("/swagger");
+    return Task.CompletedTask;
+});
 
 app.Run();
