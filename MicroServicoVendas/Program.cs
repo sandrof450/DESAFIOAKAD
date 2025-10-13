@@ -13,6 +13,14 @@ using MicroServicoVendas.RabbitMQ.Consumers;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// No .NET, os valores definidos em variáveis de ambiente sobrescrevem automaticamente
+// as configurações do appsettings.json durante a execução, inclusive em ambientes como o Render.
+#region Define que os valores de configuração podem vir de variáveis de ambiente
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddEnvironmentVariables();
+#endregion
+
 #region Configuração de autenticação JWT no microserviço de estoque.
 var jwtKey = builder.Configuration["Jwt:Key"];
 if (string.IsNullOrEmpty(jwtKey)) throw new Exception("JWT Key is not configured.");
@@ -47,9 +55,15 @@ builder.Services.AddScoped<EstoqueClient>();
 
 builder.Services.AddSingleton<IRabbitMqPublisher, RabbitMQPublisher>();
 
+//Configuração do HttpClient para comunicação com o microserviço de estoque via API Gateway ambiente local
 builder.Services.AddHttpClient<EstoqueClient>(
     client => client.BaseAddress = new Uri("http://apigateway:8080")
 );
+
+//Configuração do HttpClient para comunicação com o microserviço de estoque via API Gateway ambiente PRD
+// builder.Services.AddHttpClient<EstoqueClient>(
+//     client => client.BaseAddress = new Uri("")//TODO: COLOCAR URL DO API GATEWAY AQUI
+// );
 
 builder.Services.AddHttpContextAccessor();
 
@@ -85,12 +99,6 @@ builder.Services.AddHostedService<RabbitMQConsumer>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-// if (app.Environment.IsDevelopment())
-// {
-//     app.UseSwagger();
-//     app.UseSwaggerUI();
-// }
 app.UseSwagger();
 app.UseSwaggerUI();
 
@@ -100,5 +108,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapGet("/", context =>
+{
+    context.Response.Redirect("/swagger");
+    return Task.CompletedTask;
+});
 
 app.Run();
