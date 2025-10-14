@@ -348,3 +348,5 @@ C:\Users\sandr\Desktop\DesafioAKAD\MicroServicoAuthentication\bin\Debug\net8.0\S
 C:\Users\sandr\Desktop\DesafioAKAD\MicroServicoAuthentication\bin\Debug\net8.0\System.Security.Cryptography.Xml.dll
 C:\Users\sandr\Desktop\DesafioAKAD\MicroServicoAuthentication\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Security.Cryptography.Pkcs.dll
 C:\Users\sandr\Desktop\DesafioAKAD\MicroServicoAuthentication\obj\Debug\net8.0\APIGateway.sourcelink.json
+C:\Users\sandr\Desktop\DesafioAKAD\MicroServicoAuthentication\bin\Debug\net8.0\Npgsql.dll
+C:\Users\sandr\Desktop\DesafioAKAD\MicroServicoAuthentication\bin\Debug\net8.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
