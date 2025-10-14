@@ -171,3 +171,5 @@ C:\Users\sandr\Desktop\DesafioAKAD\MicroServicoVendas\obj\Debug\net8.0\ref\Micro
 C:\Users\sandr\Desktop\DesafioAKAD\MicroServicoVendas\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\sandr\Desktop\DesafioAKAD\MicroServicoVendas\bin\Debug\net8.0\RabbitMQ.Client.dll
 C:\Users\sandr\Desktop\DesafioAKAD\MicroServicoVendas\obj\Debug\net8.0\MicroServicoVendas.sourcelink.json
+C:\Users\sandr\Desktop\DesafioAKAD\MicroServicoVendas\bin\Debug\net8.0\Npgsql.dll
+C:\Users\sandr\Desktop\DesafioAKAD\MicroServicoVendas\bin\Debug\net8.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll

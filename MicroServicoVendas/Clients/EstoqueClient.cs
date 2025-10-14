@@ -14,6 +14,8 @@ namespace MicroServicoVendas.Clients
         {
             _httpClient = httpClient;
             _httpContextAccessor = httpContextAccessor;
+            
+            //**Insere o token JWT do contexto HTTP atual no cabeçalho Authorization do HttpClient, isso é necessário para autenticação em chamadas de API**//
             SetAuthorizationHeaderFromContext();
         }
 
