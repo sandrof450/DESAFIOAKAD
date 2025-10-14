@@ -41,15 +41,16 @@ builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables();
 // Para depurar e verificar se as configurações estão sendo carregadas
-Console.WriteLine($"[DEBUG] RabbitMQ URI: {builder.Configuration["RabbitMQ:Uri"]}");
-Console.WriteLine($"[DEBUG] RabbitMQ Queue: {builder.Configuration["RabbitMQ:Queue"]}");
+// Console.WriteLine($"[DEBUG] RabbitMQ URI: {builder.Configuration["RabbitMQ:Uri"]}");
+// Console.WriteLine($"[DEBUG] RabbitMQ Queue: {builder.Configuration["RabbitMQ:Queue"]}");
 #endregion
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddDbContext<VendaContext>(
-    options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    //options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
 builder.Services.AddScoped<PedidoService>();
@@ -60,7 +61,7 @@ builder.Services.AddSingleton<IRabbitMqPublisher, RabbitMQPublisher>();
 
 //Configuração do HttpClient para comunicação com o microserviço de estoque via API Gateway ambiente local
 builder.Services.AddHttpClient<EstoqueClient>(
-    client => client.BaseAddress = new Uri("http://apigateway:8080")
+    client => client.BaseAddress = new Uri("https://akad-gateway.onrender.com")//http://apigateway:8080 uri do API GATEWAY em ambiente local
 );
 
 //Configuração do HttpClient para comunicação com o microserviço de estoque via API Gateway ambiente PRD
