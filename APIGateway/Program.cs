@@ -25,9 +25,13 @@ builder.Services.AddAuthentication("Bearer")
 builder.Services.AddAuthorization();
 #endregion
 
+// No .NET, os valores definidos em variáveis de ambiente sobrescrevem automaticamente
+// as configurações do appsettings.json durante a execução, inclusive em ambientes como o Render.
+#region Define que os valores de configuração podem vir de variáveis de ambiente
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables();
+#endregion
 
 #region 🔑 Configuração YARP
 var apiKey = Environment.GetEnvironmentVariable("GATEWAY_SECRET");
