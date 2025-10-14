@@ -1,11 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace MicroServicoEstoque.Repositories.Migrations
 {
     /// <inheritdoc />
-    public partial class CreateTableProduto : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -14,11 +15,11 @@ namespace MicroServicoEstoque.Repositories.Migrations
                 name: "Produtos",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    NomeProduto = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    QuantidadeDisponivel = table.Column<int>(type: "int", nullable: false),
-                    Preco = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    NomeProduto = table.Column<string>(type: "text", nullable: false),
+                    QuantidadeDisponivel = table.Column<int>(type: "integer", nullable: false),
+                    Preco = table.Column<decimal>(type: "numeric", nullable: false)
                 },
                 constraints: table =>
                 {
