@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using MicroServicoEstoque.Interfaces;
 using MicroServicoEstoque.RabbitMQ.Publishers;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,7 +74,8 @@ builder.Services.AddAuthentication(options =>
 #endregion
 
 builder.Services.AddDbContext<EstoqueContext>(
-    options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    //options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
 builder.Services.AddScoped<ProdutoService>();
