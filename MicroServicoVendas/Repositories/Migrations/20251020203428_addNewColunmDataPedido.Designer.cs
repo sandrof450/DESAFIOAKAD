@@ -3,6 +3,7 @@ using System;
 using MicroServicoVendas.Repositories.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MicroServicoVendas.Repositories.Migrations
 {
     [DbContext(typeof(VendaContext))]
-    partial class VendaContextModelSnapshot : ModelSnapshot
+    [Migration("20251020203428_addNewColunmDataPedido")]
+    partial class addNewColunmDataPedido
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

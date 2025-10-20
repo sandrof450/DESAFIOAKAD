@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MicroServicoVendas")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+217f636d998d74933307ce8b7f79e1aa39398d36")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+240792cdeeb113e7d2f9a4da31f730e4a9056752")]
 [assembly: System.Reflection.AssemblyProductAttribute("MicroServicoVendas")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MicroServicoVendas")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
