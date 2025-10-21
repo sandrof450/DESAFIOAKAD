@@ -117,7 +117,16 @@ app.UseAuthorization();
 using (var scope = app.Services.CreateScope())
 {
     var DbContext = scope.ServiceProvider.GetRequiredService<VendaContext>();
+    Console.WriteLine($"[INFO] Aplicando migrations em {DbContext.Database.GetDbConnection().ConnectionString}");
+    try
+    {
     DbContext.Database.Migrate();
+        Console.WriteLine("[INFO] Migrações aplicadas com sucesso!");
+}
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[ERRO] Falha ao aplicar migrations: {ex.Message}");
+    }
 }
 #endregion
 

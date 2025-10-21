@@ -19,7 +19,7 @@ namespace MicroServicoVendas.Repositories
         {
             var novoPedido = await _context.Pedidos.AddAsync(pedido);
 
-            var validateIfSaveChanges = _context.SaveChanges() > 0;
+            var validateIfSaveChanges = await _context.SaveChangesAsync() > 0;
 
             if (!validateIfSaveChanges)
             {
