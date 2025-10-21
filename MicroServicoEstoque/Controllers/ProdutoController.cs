@@ -16,8 +16,8 @@ namespace MicroServicoEstoque.Controllers
             _produtoService = produtoService;
         }
 
-        [HttpPost]    
-        [Authorize(Roles = "Admin, Editor")]    
+        [HttpPost]
+        [Authorize(Roles = "Admin, Editor")]
         public async Task<IActionResult> Create([FromBody] Produto produto)
         {
             try
@@ -37,6 +37,30 @@ namespace MicroServicoEstoque.Controllers
             {
                 return StatusCode(500, new { message = "An error occurred while saving the Produto.", details = ex.Message });
             }
+        }
+
+        [HttpGet("GetAllProdutos")]
+        [Authorize(Roles = "Admin, Editor")]
+        public async Task<IActionResult> GetAllProdutosAsync()
+        {
+            try
+            {
+                var result = await _produtoService.GetAllProdutosAsync();
+                return Ok(result);
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while retrieving the Pedido.", details = ex.Message });
+            }
+        
         }
 
         [HttpGet("GetProdutoPorId/{id}")]

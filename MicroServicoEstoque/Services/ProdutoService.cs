@@ -34,6 +34,22 @@ namespace MicroServicoEstoque.Service
             return novoProduto;
         }
 
+        public async Task<List<Produto>> GetAllProdutosAsync()
+        {
+            #region Get Produto to the context
+            var produtos = await _produtoRepository.GetAllProdutosAsync();
+            #endregion
+
+            #region Validate produto is not null
+            if (produtos.Count == 0)
+            {
+                throw new Exception($"No produtos found.");
+            }
+            #endregion
+
+            return produtos;
+        }
+
         public Produto GetProdutoPorId(int id)
         {
             #region Get Produto to the context

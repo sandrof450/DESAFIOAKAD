@@ -28,6 +28,13 @@ namespace MicroServicoEstoque.Repositories
             return novoProduto.Entity;
         }
 
+        public async Task<List<Produto>> GetAllProdutosAsync()
+        {
+            var produtos = await _context.Produtos.AsNoTracking().ToListAsync();
+
+            return produtos;
+        }
+
         public Produto GetProdutoPorId(int id)
         {
             var produto = _context.Produtos.AsNoTracking().FirstOrDefault(p => p.Id == id);
