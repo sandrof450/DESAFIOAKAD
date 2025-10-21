@@ -110,8 +110,8 @@ app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
-app.useauthentication();
-app.useauthorization();
+app.UseAuthentication();
+app.UseAuthorization();
 
 #region Aplica migrations automaticamente ao iniciar o aplicativo
 using (var scope = app.Services.CreateScope())
