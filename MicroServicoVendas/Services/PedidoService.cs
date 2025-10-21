@@ -63,6 +63,7 @@ namespace MicroServicoVendas.Services
                 Preco = pedidoDTO.Preco,
                 Quantidade = pedidoDTO.Quantidade,
                 ProdutoId = produtoId,
+                DataPedido = pedidoDTO.DataPedido
             };
 
             var novoPedido = await _pedidoRepository.CreatePedido(pedido);
