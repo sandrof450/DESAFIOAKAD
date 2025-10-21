@@ -11,5 +11,6 @@ namespace MicroServicoVendas.DTOs
         public string NomeProduto { get; set; }
         public decimal Preco { get; set; }
         public int Quantidade { get; set; }
+        public DateTime DataPedido { get; set; }
     }
 }
