@@ -11,6 +11,7 @@ using MicroServicoVendas.Interfaces;
 using MicroServicoVendas.RabbitMQ.Publishers;
 using MicroServicoVendas.RabbitMQ.Consumers;
 
+#region Builder
 var builder = WebApplication.CreateBuilder(args);
 
 #region Configuração de autenticação JWT no microserviço de estoque.
@@ -99,7 +100,9 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddLogging();
 builder.Services.AddHostedService<RabbitMQConsumer>();
+#endregion
 
+#region App
 var app = builder.Build();
 
 app.UseSwagger();
@@ -107,8 +110,16 @@ app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
-app.UseAuthentication();
-app.UseAuthorization();
+app.useauthentication();
+app.useauthorization();
+
+#region Aplica migrations automaticamente ao iniciar o aplicativo
+using (var scope = app.Services.CreateScope())
+{
+    var DbContext = scope.ServiceProvider.GetRequiredService<VendaContext>();
+    DbContext.Database.Migrate();
+}
+#endregion
 
 app.MapControllers();
 
@@ -119,3 +130,4 @@ app.MapGet("/", context =>
 });
 
 app.Run();
+#endregion
