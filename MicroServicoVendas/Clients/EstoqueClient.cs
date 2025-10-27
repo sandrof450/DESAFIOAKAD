@@ -66,6 +66,7 @@ namespace MicroServicoVendas.Clients
         public void SetAuthorizationHeaderFromContext()
         {
             var token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].ToString();
+            //var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJFbWFpbCI6InRlc3RlQGdtYWlsLmNvbSIsIlBlcmZpbCI6IkFkbWluIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiQWRtaW4iLCJleHAiOjE3NjE2NjgxOTh9.CZ9oms3hh9fNRO8J7Q2bF3RCL54IWPurZw_xguq-NNg";
             if (string.IsNullOrEmpty(token))
             {
                 throw new Exception($"Token {token} is valid");

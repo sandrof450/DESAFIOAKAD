@@ -25,7 +25,7 @@ namespace MicroServicoVendas.Services
             _publisher = publisher;
         }
 
-        public async Task<Pedido> CreatePedido(PedidoDTO pedidoDTO)
+        public async Task<Pedido> CreatePedidoAsync(PedidoDTO pedidoDTO)
         {
             #region Validate Pedido is not null
             if (pedidoDTO == null)
@@ -66,16 +66,16 @@ namespace MicroServicoVendas.Services
                 DataPedido = pedidoDTO.DataPedido
             };
 
-            var novoPedido = await _pedidoRepository.CreatePedido(pedido);
+            var novoPedido = await _pedidoRepository.CreatePedidoAsync(pedido);
             #endregion
 
             return novoPedido;
         }
 
-        public List<Pedido> GetPedidos()
+        public async Task<List<Pedido>> GetPedidosAsync()
         {
             #region Get Pedidos to the context
-            var listaPedidos = _pedidoRepository.GetPedidos();
+            var listaPedidos = await _pedidoRepository.GetPedidosAsync();
             #endregion
 
             #region Validate Pedido is not null
@@ -86,10 +86,10 @@ namespace MicroServicoVendas.Services
             return listaPedidos;
         }
 
-        public Pedido GetPedido(int id)
+        public async Task<Pedido> GetPedidoAsync(int id)
         {
             #region Get Pedidos to the context
-            var pedido = _pedidoRepository.GetPedido(id);
+            var pedido = await _pedidoRepository.GetPedidoAsync(id);
             #endregion
 
             #region Validate Pedido is not null
@@ -102,10 +102,25 @@ namespace MicroServicoVendas.Services
             return pedido;
         }
 
-        public async Task<Pedido> UpdatePedido(int id, Pedido pedido)
+        public async Task<List<int>> GetListCountVendasMensaisByProdutoAsync(int produtoId)
+        {
+            #region Get Pedidos to the context
+            var listCountVendasMensaisConsumer = await _pedidoRepository.GetListCountVendasMensaisByProdutoAsync(produtoId);
+            #endregion
+
+            #region Validate Pedido is not null
+            if (listCountVendasMensaisConsumer == null)
+            {
+                throw new Exception($"Não teve nenhum pedido realizado nos ultimos");
+            }
+            #endregion
+
+            return listCountVendasMensaisConsumer;
+        }
+        public async Task<Pedido> UpdatePedidoAsync(int id, Pedido pedido)
         {
             #region Validate Pedido is not null or Not exists
-            var existsPedido = _pedidoRepository.GetPedido(id) != null;
+            var existsPedido = _pedidoRepository.GetPedidoAsync(id) != null;
             if (!existsPedido)
             {
                 throw new Exception("Pedido not found");
@@ -124,10 +139,10 @@ namespace MicroServicoVendas.Services
             return pedidoUpdate;
         }
 
-        public void DeletePedido(int id)
+        public async Task DeletePedidoAsync(int id)
         {
             #region Validate Pedido is not null or Not exists
-            var existsPedido = _pedidoRepository.GetPedido(id) != null;
+            var existsPedido = await _pedidoRepository.GetPedidoAsync(id) != null;
             if (!existsPedido)
             {
                 throw new Exception("Pedido not found");
@@ -135,7 +150,7 @@ namespace MicroServicoVendas.Services
             #endregion
 
             #region Update Pedido to the context
-            _pedidoRepository.DeletePedido(id);
+            await _pedidoRepository.DeletePedidoAsync(id);
             #endregion
 
         }

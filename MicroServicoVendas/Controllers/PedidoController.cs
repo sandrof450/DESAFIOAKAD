@@ -23,7 +23,7 @@ namespace MicroServicoVendas.Controllers
         {
             try
             {
-                var result = await _pedidoService.CreatePedido(pedidoDTO);
+                var result = await _pedidoService.CreatePedidoAsync(pedidoDTO);
                 return CreatedAtAction(nameof(Create), new { id = result.Id }, result);
             }
             catch (ArgumentNullException ex)
@@ -42,11 +42,11 @@ namespace MicroServicoVendas.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin, Editor, Viewer")]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
             try
             {
-                var listaPedidos = _pedidoService.GetPedidos();
+                var listaPedidos = await _pedidoService.GetPedidosAsync();
                 return Ok(listaPedidos);
             }
             catch (ArgumentNullException ex)
@@ -65,12 +65,34 @@ namespace MicroServicoVendas.Controllers
 
         [HttpGet("{id}")]
         [Authorize(Roles = "Admin, Editor, Viewer")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
             try
             {
-                var pedido = _pedidoService.GetPedido(id);
+                var pedido = await _pedidoService.GetPedidoAsync(id);
                 return Ok(pedido);
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while retrieving the Pedido.", details = ex.Message });
+            }
+        }
+
+        [HttpGet("GetListCountVendasMensaisByProduto")]
+        public async Task<IActionResult> GetListCountVendasMensaisByProdutoAsync(int ProdutoId)
+        {
+            try
+            {
+                var listCountVendasMensaisConsumer = await _pedidoService.GetListCountVendasMensaisByProdutoAsync(ProdutoId);
+                return Ok(listCountVendasMensaisConsumer);
             }
             catch (ArgumentNullException ex)
             {
@@ -88,11 +110,11 @@ namespace MicroServicoVendas.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin, Editor")]
-        public ActionResult Update(int id, [FromBody] Pedido pedido)
+        public async Task<ActionResult> Update(int id, [FromBody] Pedido pedido)
         {
             try
             {
-                var result = _pedidoService.UpdatePedido(id, pedido);
+                var result = await _pedidoService.UpdatePedidoAsync(id, pedido);
                 return Ok(result);
             }
             catch (ArgumentNullException ex)
@@ -111,11 +133,11 @@ namespace MicroServicoVendas.Controllers
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                _pedidoService.DeletePedido(id);
+                _pedidoService.DeletePedidoAsync(id);
                 return NoContent();
             }
             catch (ArgumentNullException ex)
