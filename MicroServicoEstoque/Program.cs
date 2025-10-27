@@ -10,6 +10,7 @@ using MicroServicoEstoque.Interfaces;
 using MicroServicoEstoque.RabbitMQ.Publishers;
 using MicroServicoEstoque.IA;
 using MicroServicoEstoque.clients;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,30 @@ if (!builder.Environment.IsDevelopment())
             ValidateIssuer = false,
             ValidateAudience = false,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnChallenge = context =>
+            {
+                //Impede o comportamento padrão (retornar apenas 401 sem corpo)
+                context.HandleResponse();
+
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+
+                var req = context.Request;
+                var hostValue = req.Host.HasValue ? req.Host.Value.ToLowerInvariant() : string.Empty;
+                var pathValue = req.Path.HasValue ? req.Path.Value : "/";
+
+                // Verifica se a requisição veio do gateway local (http://localhost:5117/) ou do Render (https://desafioakad.onrender.com/)
+                var isLocalGateway = req.Scheme == "http" && hostValue.StartsWith("localhost:5117");
+                var isRenderGateway = req.Scheme == "https" && hostValue.StartsWith("desafioakad.onrender.com");
+
+                if (isLocalGateway || isRenderGateway)
+                    return context.Response.WriteAsync("Access denied: Unauthorized gateway.");
+
+                return context.Response.WriteAsync("Acesso negado. O token é inválido, expirado ou não foi informado");
+            }
         };
     });  
 }
@@ -122,4 +147,9 @@ app.MapGet("/", context =>
     return Task.CompletedTask;
 });
 
+
+app.UseSwagger();
+app.UseSwaggerUI();
+app.UseHttpsRedirection();
+app.MapControllers();
 app.Run();
