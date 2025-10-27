@@ -14,7 +14,7 @@ namespace MicroServicoEstoque.Repositories
             _context = context;
         }
 
-        public async Task<Produto> CreateProduto(Produto produto)
+        public async Task<Produto> CreateProdutoAsync(Produto produto)
         {
             var novoProduto = await _context.Produtos.AddAsync(produto);
 
@@ -35,14 +35,14 @@ namespace MicroServicoEstoque.Repositories
             return produtos;
         }
 
-        public Produto GetProdutoPorId(int id)
+        public async Task<Produto> GetProdutoPorIdAsync(int produtoId)
         {
-            var produto = _context.Produtos.AsNoTracking().FirstOrDefault(p => p.Id == id);
+            var produto = await _context.Produtos.AsNoTracking().FirstOrDefaultAsync(p => p.Id == produtoId);
 
             return produto;
         }
 
-        public async Task<Produto> GetProdutoAsName(string name)
+        public async Task<Produto> GetProdutoByNameAsync(string name)
         {
             var produto = await _context.Produtos
             .AsNoTracking()
@@ -51,9 +51,9 @@ namespace MicroServicoEstoque.Repositories
             return produto;
         }
 
-        public Produto Updateproduto(int id, Produto produto)
+        public async Task<Produto> UpdateprodutoAsync(int id, Produto produto)
         {
-            var produtoUpdate = _context.Produtos.AsNoTracking().FirstOrDefault(p => p.Id == id);
+            var produtoUpdate = await _context.Produtos.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
             produtoUpdate.NomeProduto = produto.NomeProduto;
             produtoUpdate.Preco = produto.Preco;
             produtoUpdate.QuantidadeDisponivel = produto.QuantidadeDisponivel;

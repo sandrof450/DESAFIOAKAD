@@ -8,12 +8,36 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using MicroServicoEstoque.Interfaces;
 using MicroServicoEstoque.RabbitMQ.Publishers;
-using Npgsql.EntityFrameworkCore.PostgreSQL;
+using MicroServicoEstoque.IA;
+using MicroServicoEstoque.clients;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var jwtKey = builder.Configuration["Jwt:Key"];
-if (string.IsNullOrEmpty(jwtKey)) throw new Exception("JWT Key is not configured.");
+// A autenticação principal deste microserviço é realizada pela API Gateway, portanto, a configuração de autenticação local não é estritamente necessária neste momento.
+// No entanto, para reforçar a segurança, será implementada uma validação adicional para verificar o perfil do usuário que está acessando o serviço.
+// Essa validação garantirá que apenas usuários com perfis autorizados possam acessar determinados endpoints, mesmo após a autenticação feita pelo Gateway.
+#region Configuração de autenticação JWT no microserviço de estoque.
+if (!builder.Environment.IsDevelopment())
+{
+    var jwtKey = builder.Configuration["Jwt:Key"];
+    if (string.IsNullOrEmpty(jwtKey)) throw new Exception("JWT Key is not configured.");
+    builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateLifetime = true,
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+        };
+    });  
+}
+#endregion
 
 // No .NET, os valores definidos em variáveis de ambiente sobrescrevem automaticamente
 // as configurações do appsettings.json durante a execução, inclusive em ambientes como o Render.
@@ -52,36 +76,30 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// A autenticação principal deste microserviço é realizada pela API Gateway, portanto, a configuração de autenticação local não é estritamente necessária neste momento.
-// No entanto, para reforçar a segurança, será implementada uma validação adicional para verificar o perfil do usuário que está acessando o serviço.
-// Essa validação garantirá que apenas usuários com perfis autorizados possam acessar determinados endpoints, mesmo após a autenticação feita pelo Gateway.
-#region Configuração de autenticação JWT no microserviço de estoque.
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateLifetime = true,
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
-    };
-});
-#endregion
+
 
 builder.Services.AddDbContext<EstoqueContext>(
     //options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
+#region Configure HttpClient
+builder.Services.AddHttpClient<IIAService, IAService>();
+
+//Registro  IHttpContextAccessor necessário, se não ocorre erro de injeção de depencia
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient<VendaClient>(
+    client => client.BaseAddress = new Uri("http://localhost:5244/")
+);
+#endregion
+
+#region Inject dependencies
 builder.Services.AddScoped<ProdutoService>();
 builder.Services.AddScoped<ProdutoRepository>();
+builder.Services.AddScoped<IIAService, IAService>();
 
 builder.Services.AddSingleton<IRabbitMQPublisher, RabbitMQPublisher>();
+#endregion
 
 var app = builder.Build();
 
@@ -90,8 +108,11 @@ app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
-app.UseAuthentication();
-app.UseAuthorization();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseAuthentication();
+    app.UseAuthorization();
+}
 
 app.MapControllers();
 

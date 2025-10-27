@@ -22,7 +22,7 @@ namespace MicroServicoEstoque.Controllers
         {
             try
             {
-                var result = await _produtoService.CreateProduto(produto);
+                var result = await _produtoService.CreateProdutoAsync(produto);
                 return CreatedAtAction(nameof(Create), new { id = produto.Id }, result);
             }
             catch (ArgumentNullException ex)
@@ -65,11 +65,11 @@ namespace MicroServicoEstoque.Controllers
 
         [HttpGet("GetProdutoPorId/{id}")]
         [Authorize(Roles = "Admin, Editor")]
-        public IActionResult GetProdutoPorId(int id)
+        public async Task<IActionResult> GetProdutoPorIdAsync(int ProdutoId)
         {
             try
             {
-                var result = _produtoService.GetProdutoPorId(id);
+                var result = await _produtoService.GetProdutoPorIdAsync(ProdutoId);
                 return Ok(result);
             }
             catch (ArgumentNullException ex)
@@ -92,7 +92,7 @@ namespace MicroServicoEstoque.Controllers
         {
             try
             {
-                var result = await _produtoService.GetProdutoAsName(name);
+                var result = await _produtoService.GetProdutoByNameAsync(name);
                 return Ok(result);
             }
             catch (ArgumentNullException ex)
@@ -109,13 +109,36 @@ namespace MicroServicoEstoque.Controllers
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpGet("GetDemandaPrevista")]
         [Authorize(Roles = "Admin, Editor")]
-        public IActionResult Update(int id, Produto produto)
+        public async Task<IActionResult> GetDemandaPrevistaAsync(int produtoId)
         {
             try
             {
-                var result = _produtoService.UpdateProduto(id, produto);
+                var result = await _produtoService.GetDemandaPrevistaAsync(produtoId);
+                return Ok(result);
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while retrieving the Pedido.", details = ex.Message });
+            }
+        }
+
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin, Editor")]
+        public async Task<IActionResult> Update(int id, Produto produto)
+        {
+            try
+            {
+                var result = await _produtoService.UpdateProdutoAsync(id, produto);
                 return Ok(result);
             }
             catch (ArgumentNullException ex)

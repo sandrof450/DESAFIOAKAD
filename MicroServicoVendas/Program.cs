@@ -15,24 +15,27 @@ using MicroServicoVendas.RabbitMQ.Consumers;
 var builder = WebApplication.CreateBuilder(args);
 
 #region Configuração de autenticação JWT no microserviço de estoque.
-var jwtKey = builder.Configuration["Jwt:Key"];
-if (string.IsNullOrEmpty(jwtKey)) throw new Exception("JWT Key is not configured.");
+if (!builder.Environment.IsDevelopment())
+{
+    var jwtKey = builder.Configuration["Jwt:Key"];
+    if (string.IsNullOrEmpty(jwtKey)) throw new Exception("JWT Key is not configured.");
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
+    builder.Services.AddAuthentication(options =>
     {
-        ValidateLifetime = true,
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
-    };
-});
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateLifetime = true,
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+        };
+    });  
+}
 #endregion
 
 // No .NET, os valores definidos em variáveis de ambiente sobrescrevem automaticamente
@@ -56,7 +59,6 @@ builder.Services.AddDbContext<VendaContext>(
 
 builder.Services.AddScoped<PedidoService>();
 builder.Services.AddScoped<PedidoRepository>();
-builder.Services.AddScoped<EstoqueClient>();
 
 builder.Services.AddSingleton<IRabbitMqPublisher, RabbitMQPublisher>();
 
@@ -64,11 +66,6 @@ builder.Services.AddSingleton<IRabbitMqPublisher, RabbitMQPublisher>();
 builder.Services.AddHttpClient<EstoqueClient>(
     client => client.BaseAddress = new Uri("https://akad-gateway.onrender.com")//http://apigateway:8080 uri do API GATEWAY em ambiente local
 );
-
-//Configuração do HttpClient para comunicação com o microserviço de estoque via API Gateway ambiente PRD
-// builder.Services.AddHttpClient<EstoqueClient>(
-//     client => client.BaseAddress = new Uri("")//TODO: COLOCAR URL DO API GATEWAY AQUI
-// );
 
 builder.Services.AddHttpContextAccessor();
 
@@ -108,10 +105,11 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
-
-app.UseAuthentication();
-app.UseAuthorization();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseAuthentication();
+    app.UseAuthorization(); 
+}
 
 #region Aplica migrations automaticamente ao iniciar o aplicativo
 using (var scope = app.Services.CreateScope())
@@ -120,9 +118,9 @@ using (var scope = app.Services.CreateScope())
     Console.WriteLine($"[INFO] Aplicando migrations em {DbContext.Database.GetDbConnection().ConnectionString}");
     try
     {
-    DbContext.Database.Migrate();
+        DbContext.Database.Migrate();
         Console.WriteLine("[INFO] Migrações aplicadas com sucesso!");
-}
+    }
     catch (Exception ex)
     {
         Console.WriteLine($"[ERRO] Falha ao aplicar migrations: {ex.Message}");
@@ -130,13 +128,13 @@ using (var scope = app.Services.CreateScope())
 }
 #endregion
 
-app.MapControllers();
-
 app.MapGet("/", context =>
 {
     context.Response.Redirect("/swagger");
     return Task.CompletedTask;
 });
 
+app.UseHttpsRedirection();
+app.MapControllers();
 app.Run();
 #endregion
