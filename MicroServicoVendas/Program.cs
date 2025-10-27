@@ -34,6 +34,29 @@ if (!builder.Environment.IsDevelopment())
             ValidateAudience = false,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
         };
+        options.Events = new JwtBearerEvents
+        {
+            OnChallenge = context =>
+            {
+                //Impede o comportamento padrão (retornar apenas 401 sem corpo)
+                context.HandleResponse();
+
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+
+                var req = context.Request;
+                var hostValue = req.Host.HasValue ? req.Host.Value.ToLowerInvariant() : string.Empty;
+                // var pathValue = req.Path.HasValue ? req.Path.Value : "/";
+
+                // Verifica se a requisição veio do gateway local (http://localhost:5117/) ou do Render (https://desafioakad.onrender.com/)
+                var isLocalGateway = req.Scheme == "http" && hostValue.StartsWith("localhost:5244");
+                var isRenderGateway = req.Scheme == "https" && hostValue.StartsWith("akad-vendas.onrender.com");
+
+                if (isLocalGateway || isRenderGateway)
+                    return context.Response.WriteAsync("Access denied: Unauthorized gateway.");
+
+                return context.Response.WriteAsync("Acesso negado. O token é inválido, expirado ou não foi informado");
+            }
+        };
     });  
 }
 #endregion
