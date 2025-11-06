@@ -13,6 +13,10 @@ using MicroServicoEstoque.Infrastructure.RabbitMQ.Publishers;
 using MicroServicoEstoque.Aplication.Services.Interfaces;
 using MicroServicoEstoque.Domain.Interfaces;
 using MicroServicoEstoque.Infrastructure.clients.Interfaces;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,8 +43,12 @@ if (!builder.Environment.IsDevelopment())
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
         };
 
+        // Realiza a verificação da URL utilizada para acesso, caso 
         options.Events = new JwtBearerEvents
         {
+            //O OnChallenge é um callback (evento) disparado automaticamente pelo middleware de autenticação JWT 
+            // quando ocorre uma falha de autenticação — isto é, quando a requisição não contém um token válido 
+            // ou o token está ausente/expirado.
             OnChallenge = context =>
             {
                 //Impede o comportamento padrão (retornar apenas 401 sem corpo)
@@ -48,20 +56,58 @@ if (!builder.Environment.IsDevelopment())
 
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
 
-                var req = context.Request;
-                var hostValue = req.Host.HasValue ? req.Host.Value.ToLowerInvariant() : string.Empty;
-                var pathValue = req.Path.HasValue ? req.Path.Value : "/";
+                var hostValue = context.Request.Headers["X-Forwarded-Host"].FirstOrDefault()
+                                ?? context.Request.Headers["Host"].FirstOrDefault()
+                                ?? context.Request.Headers["Origin"].FirstOrDefault();
 
                 // Verifica se a requisição veio do gateway local (http://localhost:5117/) ou do Render (https://desafioakad.onrender.com/)
-                var isLocalGateway = req.Scheme == "http" && hostValue.StartsWith("localhost:5117");
-                var isRenderGateway = req.Scheme == "https" && hostValue.StartsWith("desafioakad.onrender.com");
+                var isLocalGateway = hostValue.Contains("localhost:5003");
+                var isRenderGateway = hostValue.Contains("akad-gateway.onrender.com");
 
-                if (isLocalGateway || isRenderGateway)
+                if (!(isLocalGateway || isRenderGateway))
                     return context.Response.WriteAsync("Access denied: Unauthorized gateway.");
 
                 return context.Response.WriteAsync("Acesso negado. O token é inválido, expirado ou não foi informado");
             }
         };
+    });
+
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy("GatewayOnly", policy =>
+            policy.RequireAssertion(context =>
+            {
+                var mvcContext = context.Resource as AuthorizationFilterContext;
+                var httpContext = mvcContext?.HttpContext;
+                if (httpContext == null) return false;
+
+                var host = httpContext.Request.Headers["Origin"].FirstOrDefault()
+                ?? httpContext.Request.Headers["Referer"].FirstOrDefault()
+                ?? httpContext.Request.Headers["X-Forwarded-Host"].FirstOrDefault();
+
+                //Aceita apenas requisições do gateway
+                var isHostValid = host != null && (host.Contains("akad-gateway.onrender.com") || host.Contains("localhost:5003"));
+
+                return isHostValid;
+            })
+        );
+        options.AddPolicy("AdminOnly", policy =>
+            policy.RequireClaim("role", "Admin")
+        );
+
+        options.AddPolicy("AdminEditorOnly", policy =>
+        {
+            policy.RequireAssertion(context =>
+            {
+                var userRoler = context.User.Claims.FirstOrDefault(claim => claim.Type == "Perfil")?.Value;
+
+                if (string.IsNullOrEmpty(userRoler)) return false;
+
+                var rolerIsValid = userRoler == "Admin" || userRoler == "Editor";
+
+                return rolerIsValid;
+            });
+        });
     });
 }
 #endregion
@@ -74,7 +120,10 @@ builder.Configuration
     .AddEnvironmentVariables();
 #endregion
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add(new AuthorizeFilter("GatewayOnly"));
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -117,7 +166,7 @@ builder.Services.AddHttpClient<IIAService, IAService>();
 //Registro  IHttpContextAccessor necessário, se não ocorre erro de injeção de depencia
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient<IVendaClient, VendaClient>(
-    client => client.BaseAddress = new Uri("http://localhost:5244/")
+    client => client.BaseAddress = new Uri("https://akad-gateway.onrender.com")
 );
 #endregion
 
