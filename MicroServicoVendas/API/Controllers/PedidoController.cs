@@ -13,13 +13,13 @@ namespace MicroServicoVendas.API.Controllers
     {
         private readonly IPedidoService _pedidoService;
 
-        public PedidoController(PedidoService pedidoService)
+        public PedidoController(IPedidoService pedidoService)
         {
             _pedidoService = pedidoService;
         }
 
         [HttpPost]
-        // [Authorize(Roles = "Admin, Editor")]
+        [Authorize(Policy = "AdminEditorOnly")]
         public async Task<IActionResult> Create([FromBody] PedidoDTO pedidoDTO)
         {
             try
@@ -42,7 +42,7 @@ namespace MicroServicoVendas.API.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin, Editor, Viewer")]
+        [Authorize(Policy = "AdminEditorOnly")]
         public async Task<IActionResult> Get()
         {
             try
@@ -65,7 +65,7 @@ namespace MicroServicoVendas.API.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin, Editor, Viewer")]
+        [Authorize(Policy = "AdminEditorOnly")]
         public async Task<IActionResult> Get(int id)
         {
             try
@@ -88,7 +88,7 @@ namespace MicroServicoVendas.API.Controllers
         }
 
         [HttpGet("GetListCountVendasMensaisByProduto")]
-        [Authorize(Roles = "Admin, Editor, Viewer")]
+        [Authorize(Policy = "AdminEditorOnly")]
         public async Task<IActionResult> GetListCountVendasMensaisByProdutoAsync(int ProdutoId)
         {
             try
@@ -111,7 +111,7 @@ namespace MicroServicoVendas.API.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin, Editor")]
+        [Authorize(Policy = "AdminEditorOnly")]
         public async Task<ActionResult> Update(int id, [FromBody] Pedido pedido)
         {
             try
@@ -134,7 +134,7 @@ namespace MicroServicoVendas.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Delete(int id)
         {
             try
