@@ -18,7 +18,7 @@ namespace MicroServicoEstoque.API.Controllers
         }
 
         [HttpPost]
-        // [Authorize(Roles = "Admin, Editor")]
+        [Authorize(Policy = "AdminEditorOnly")]
         public async Task<IActionResult> Create([FromBody] Produto produto)
         {
             try
@@ -41,7 +41,7 @@ namespace MicroServicoEstoque.API.Controllers
         }
 
         [HttpGet("GetAllProdutos")]
-        // [Authorize(Roles = "Admin, Editor")]
+        [Authorize(Policy = "AdminEditorOnly")]
         public async Task<IActionResult> GetAllProdutosAsync()
         {
             try
@@ -65,7 +65,7 @@ namespace MicroServicoEstoque.API.Controllers
         }
 
         [HttpGet("GetProdutoPorId/{id}")]
-        [Authorize(Roles = "Admin, Editor")]
+        [Authorize(Policy = "AdminEditorOnly")]
         public async Task<IActionResult> GetProdutoPorIdAsync(int ProdutoId)
         {
             try
@@ -88,7 +88,7 @@ namespace MicroServicoEstoque.API.Controllers
         }
 
         [HttpGet("GetProdutoAsName/{name}")]
-        [Authorize(Roles = "Admin, Editor")]
+        [Authorize(Policy = "AdminEditorOnly")]
         public async Task<IActionResult> GetProdutoAsName(string name)
         {
             try
@@ -111,7 +111,7 @@ namespace MicroServicoEstoque.API.Controllers
         }
 
         [HttpGet("GetDemandaPrevista")]
-        [Authorize(Roles = "Admin, Editor")]
+        [Authorize(Policy = "AdminEditorOnly")]
         public async Task<IActionResult> GetDemandaPrevistaAsync(int produtoId)
         {
             try
@@ -134,7 +134,7 @@ namespace MicroServicoEstoque.API.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin, Editor")]
+        [Authorize(Policy = "AdminEditorOnly")]
         public async Task<IActionResult> Update(int id, Produto produto)
         {
             try

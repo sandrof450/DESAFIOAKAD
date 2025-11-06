@@ -41,10 +41,10 @@ namespace MicroServicoEstoque.Infrastructure.clients.Implementations
         public void SetAuthorizationHeaderFromContext()
         {
             //**Insere o token JWT do contexto HTTP atual no cabeçalho Authorization do HttpClient, isso é necessário para autenticação em chamadas de API**//
-            // _token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"];
+            _token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"];
 
             //Necessário inserir manualmente o token quando utilizar o projeto localmente
-            var _token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJFbWFpbCI6InRlc3RlQGdtYWlsLmNvbSIsIlBlcmZpbCI6IkFkbWluIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiQWRtaW4iLCJleHAiOjE3NjE2NjgxOTh9.CZ9oms3hh9fNRO8J7Q2bF3RCL54IWPurZw_xguq-NNg";
+            //var _token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJFbWFpbCI6InRlc3RlQGdtYWlsLmNvbSIsIlBlcmZpbCI6IkFkbWluIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiQWRtaW4iLCJleHAiOjE3NjI1MjYyMzd9.cQ6HOY7ie0Djbj-w3_bOShaxkVUdEL7IAR1EypxLp2s";
             if (string.IsNullOrEmpty(_token))
             {
                 throw new Exception("Authorization token is missing in the HTTP context.");
