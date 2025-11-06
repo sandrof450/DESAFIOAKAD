@@ -13,12 +13,15 @@ using MicroServicoVendas.Infrastructure.Clients.Implementations;
 using MicroServicoVendas.Infrastructure.RabbitMQ.Consumers;
 using MicroServicoVendas.Aplication.Services.Interfaces;
 using MicroServicoVendas.Infrastructure.Clients.Interfaces;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 #region Builder
 var builder = WebApplication.CreateBuilder(args);
 
 #region Configuração de autenticação JWT no microserviço de estoque.
-if (builder.Environment.IsDevelopment())
+if (!builder.Environment.IsDevelopment())
 {
     var jwtKey = builder.Configuration["Jwt:Key"];
     if (string.IsNullOrEmpty(jwtKey)) throw new Exception("JWT Key is not configured.");
@@ -46,21 +49,60 @@ if (builder.Environment.IsDevelopment())
 
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
 
-                var req = context.Request;
-                var hostValue = req.Host.HasValue ? req.Host.Value.ToLowerInvariant() : string.Empty;
-                // var pathValue = req.Path.HasValue ? req.Path.Value : "/";
+                var hostValue = context.Request.Headers["X-Forwarded-Host"].ToString()
+                    ?? context.Request.Headers["Host"].ToString()
+                    ?? context.Request.Headers["Origin"].ToString();
 
-                // Verifica se a requisição veio do gateway local (http://localhost:5117/) ou do Render (https://desafioakad.onrender.com/)
-                var isLocalGateway = req.Scheme == "http" && hostValue.StartsWith("localhost:5244");
-                var isRenderGateway = req.Scheme == "https" && hostValue.StartsWith("akad-vendas.onrender.com");
+                // Verifica se a requisição veio do gateway local (http://localhost:5003/) ou do Render (akad-gateway.onrender.com)
+                var isLocalGateway = hostValue.Contains("localhost:5003");
+                var isRenderGateway = hostValue.Contains("akad-gateway.onrender.com");
 
-                if (isLocalGateway || isRenderGateway)
+                if (!(isLocalGateway || isRenderGateway))
                     return context.Response.WriteAsync("Access denied: Unauthorized gateway.");
 
                 return context.Response.WriteAsync("Acesso negado. O token é inválido, expirado ou não foi informado");
             }
         };
     });    
+    builder.Services.AddAuthorization(Options =>
+    {
+        Options.AddPolicy("GatewayOnly", policy =>
+        {
+            policy.RequireAssertion(context =>
+            {
+                //Tentativa de obter o AuthorizationFilterContext a partir do contexto de autorização
+                //Significa: "tente tratar context.Resource como AuthorizationFilterContext; se não for compatível, mvcContext será null".
+                // Diferença para cast explícito (AuthorizationFilterContext)context.Resource: o cast explícito lança InvalidCastException se a conversão falhar; as não lança, só produz null.
+                var mvcContext = context.Resource as AuthorizationFilterContext;
+                var httpContext = mvcContext?.HttpContext;
+                if (httpContext == null) return false;
+
+                var hasValue = httpContext.Request.Headers["X-Forwarded-Host"].FirstOrDefault()
+                    ?? httpContext.Request.Headers["Host"].FirstOrDefault()
+                    ?? httpContext.Request.Headers["Origin"].FirstOrDefault();
+
+                var isHostValid = hasValue != null && (hasValue.Contains("localhost:5003") || hasValue.Contains("akad-gateway.onrender.com"));
+                return isHostValid;
+            });
+        });
+
+        Options.AddPolicy("AdminOnly", policy =>
+        {
+            policy.RequireClaim("role", "Admin");
+        });
+
+        Options.AddPolicy("AdminEditorOnly", policy =>
+        {
+            policy.RequireAssertion(context =>
+            {
+                var userRole = context.User.Claims.FirstOrDefault(c => c.Type == "Perfil")?.Value;
+                if (string.IsNullOrEmpty(userRole)) return false;
+
+                var rolerIsValid = userRole == "Admin" || userRole == "Editor";
+                return rolerIsValid;
+            });
+        });
+    });
 }
 #endregion
 
@@ -75,7 +117,11 @@ builder.Configuration
 // Console.WriteLine($"[DEBUG] RabbitMQ Queue: {builder.Configuration["RabbitMQ:Queue"]}");
 #endregion
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add(new AuthorizeFilter("GatewayOnly"));
+});
+
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddDbContext<VendaContext>(
