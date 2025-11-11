@@ -1,162 +1,40 @@
-# ==================================================
-# ARQUIVOS DE AMBIENTE E CONFIGURAÇÕES SENSÍVEIS
-# ==================================================
-.env
-.env.*
-!.env.example
-*.env.local
-*.env.development
-*.env.production
-config/local.json
-config/development.json
-config/production.json
-secrets/
-credentials/
-
-# ==================================================
-# LOGS
-# ==================================================
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-logs/
-*.log.*
-
-# ==================================================
-# DEPENDÊNCIAS E BUILD
-# ==================================================
-# Dependências Node.js
-node_modules/
-*/node_modules/
-
-# Build outputs
-dist/
-build/
-*/dist/
-*/build/
-.out/
-.next/
-.nuxt/
-
-# Cache de package managers
-.npm
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
-.pnp.*
-
-# ==================================================
-# DOCKER
-# ==================================================
-.docker/
-docker-compose.override.yml
-docker-compose.prod.yml
-
-# ==================================================
-# IDEs E EDITORES
-# ==================================================
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
-Thumbs.db
-
-# ==================================================
-# SISTEMAS OPERACIONAIS
-# ==================================================
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# ==================================================
-# LINGUAGENS ESPECÍFICAS
-# ==================================================
-
-## Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-venv/
-.venv/
-
-## Java
-target/
-*.class
-*.jar
-*.war
-*.ear
-
-## Go
+# Ignorar diretórios de compilação
 bin/
-pkg/
+obj/
+Debug/
+Release/
 
-## PHP
-vendor/
+# Ignorar arquivos temporários do Visual Studio
+*.user
+*.suo
+*.cache
+*.log
+*.vspscc
+*.vssscc
 
-## Ruby
-*.gem
-.bundle
+# Ignorar arquivos de build gerados automaticamente
+*.AssemblyInfo.cs
+*.GeneratedMSBuildEditorConfig.editorconfig
 
-# ==================================================
-# TEMPORÁRIOS E CACHE
-# ==================================================
-*.tmp
-*.temp
-.cache/
-.parcel-cache/
+# Ignorar diretório do Visual Studio
+.vs/
+# Ignorar diretórios de compilação
+bin/
+obj/
+Debug/
+Release/
 
-# ==================================================
-# COVERAGE E TESTES
-# ==================================================
-coverage/
-*.lcov
-.nyc_output/
+# Ignorar arquivos temporários do Visual Studio
+*.user
+*.suo
+*.cache
+*.log
+*.vspscc
+*.vssscc
 
-# ==================================================
-# MICROSERVICES SPECIFIC
-# ==================================================
-# Arquivos de configuração local de cada microserviço
-APIGateway/config/local.*
-MicroServiceAuthentication/config/local.*
-MicroServiceEsteque/config/local.*
-MicroServiceVendas/config/local.*
+# Ignorar arquivos de build gerados automaticamente
+*.AssemblyInfo.cs
+*.GeneratedMSBuildEditorConfig.editorconfig
 
-# Certificados e chaves
-*.pem
-*.key
-*.crt
-*.csr
-
-# ==================================================
-# UPLOADS E DADOS TEMPORÁRIOS
-# ==================================================
-uploads/
-temp/
-tmp/
-
-# ==================================================
-# BACKUPS
-# ==================================================
-*.bak
-*.backup
-*.old
-
-# ==================================================
-# MISC
-# ==================================================
-*.tgz
-*.tar.gz
-*.zip
+# Ignorar diretório do Visual Studio
+.vs/
