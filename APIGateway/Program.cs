@@ -1,10 +1,15 @@
 using System.Text;
+using APIGateway.TransformProvider;
 using Microsoft.IdentityModel.Tokens;
 using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Transforms.Builder;
 
 var builder = WebApplication.CreateBuilder(args);
 
 #region Configura autenticação JWT no Gateway
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? throw new Exception("JWT Issuer is not configured.");
+var JwtAudience = builder.Configuration["Jwt:Audience"] ?? throw new Exception("JWT Audience is not configured.");
+
 builder.Services.AddAuthentication("Bearer")
   .AddJwtBearer(options =>
   {
@@ -14,8 +19,8 @@ builder.Services.AddAuthentication("Bearer")
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = "http://authentication:8080",//http://localhost:[numero da porta do microservico] -- Para teste local
-        ValidAudience = "http://authentication:8080",//http://localhost:[numero da porta do microservico] -- Para teste local
+        ValidIssuer = jwtIssuer,//http://localhost:[numero da porta do microservico] -- Para teste local
+        ValidAudience = JwtAudience,//http://localhost:[numero da porta do microservico] -- Para teste local
         IssuerSigningKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
         )
@@ -49,12 +54,6 @@ builder.Services.AddReverseProxy()
             RouteId = "login",
             ClusterId = "loginCluster",
             Match = new RouteMatch { Path = "/api/login/{**catch-all}" },
-            Transforms = new[]{
-                new Dictionary<string, string>{
-                    {"RequestHeader", "X-Internal-Secret"},
-                    {"Set", apiKey}
-                }
-            }
         },
         #endregion
 
@@ -112,6 +111,8 @@ builder.Services.AddReverseProxy()
         #endregion
     });
 #endregion 
+
+builder.Services.AddSingleton<ITransformProvider, JwtInjectionTransformProvider>();
 
 builder.WebHost.ConfigureKestrel(options =>
 {
