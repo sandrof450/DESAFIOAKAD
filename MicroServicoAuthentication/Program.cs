@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using APIGateway.Interfaces;
 using APIGateway.Repositories;
@@ -7,14 +8,33 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Npgsql.EntityFrameworkCore.PostgreSQL;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 var jwtKey = builder.Configuration["Jwt:Key"];
 if (string.IsNullOrEmpty(jwtKey))
     throw new InvalidOperationException("JWT jey is not configured.");
+
+var issuer = builder.Configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT issuer is not configured.");
+var audience = builder.Configuration["Jwt:Audience"] ?? throw new InvalidOperationException("JWT audience is not configured.");
+
+builder.Services.AddAuthentication(option =>
+    {
+        option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    }
+)
+.AddJwtBearer(option =>
+    {
+        option.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateLifetime = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+        };
+    }
+);
 
 // No .NET, os valores definidos em variáveis de ambiente sobrescrevem automaticamente
 // as configurações do appsettings.json durante a execução, inclusive em ambientes como o Render.
@@ -62,29 +82,12 @@ builder.Services.AddScoped<LoginService>();
 builder.Services.AddScoped<AdministradorRepository>();
 builder.Services.AddScoped<IAdministradorService, AdministradorService>();
 
-builder.Services.AddAuthentication(option =>
-    {
-        option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    }
-)
-.AddJwtBearer(option =>
-    {
-        option.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateLifetime = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
-            ValidateIssuer = false,
-            ValidateAudience = false,
-        };
-    }
-);
 
 builder.Services.AddAuthorization();
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenAnyIP(8080);
+    options.ListenAnyIP(5279);
 });
 
 var app = builder.Build();
@@ -93,16 +96,36 @@ app.Use(async (context, next) =>
 {
     if (context.Request.Path.StartsWithSegments("/api/login"))
     {
-        var key = Environment.GetEnvironmentVariable("GATEWAY_SECRET");
-        if (string.IsNullOrEmpty(key)) key = builder.Configuration["ApiKey:Key"];
-
-        var expectedSecret = key;
-        var receivedSecret = context.Request.Headers["X-Internal-Secret"].FirstOrDefault();
-
-        if (receivedSecret != expectedSecret)
+        var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+        if (string.IsNullOrEmpty(token))
         {
-            context.Response.StatusCode = StatusCodes.Status403Forbidden;
-            await context.Response.WriteAsync("Access denied: Unauthorized gateway.");
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            await context.Response.WriteAsync("Missing internal token.");
+            return;
+        }
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]));
+        if (string.IsNullOrEmpty(key.ToString())) throw new InvalidOperationException("JWT key is not configured.");
+
+        var handler = new JwtSecurityTokenHandler();
+
+        try
+        {
+            handler.ValidateToken(token, new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = issuer,
+                ValidateAudience = true,
+                ValidAudience = audience,
+                ValidateLifetime = true,
+                IssuerSigningKey = key,
+                ValidateIssuerSigningKey = true,
+            }, out var _);
+        }
+        catch
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            await context.Response.WriteAsync("Invalid internal token.");
             return;
         }
     }
