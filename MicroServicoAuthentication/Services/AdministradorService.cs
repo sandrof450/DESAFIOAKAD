@@ -52,7 +52,7 @@ namespace APIGateway.Services
             var administrador = await _administradorRepository.Login(loginDTO);
             if (administrador == null)
             {
-                throw new UnauthorizedAccessException("Invalid email or password. ponto1");
+                throw new UnauthorizedAccessException("Invalid email or password.");
             }
 
             var passwordHash = new PasswordHasher<Administrador>();
@@ -60,7 +60,7 @@ namespace APIGateway.Services
 
             if (passwordVerificationResult == PasswordVerificationResult.Failed)
             {
-                throw new UnauthorizedAccessException("Invalid email or password. ponto2");
+                throw new UnauthorizedAccessException("Invalid email or password.");
             }
 
             return administrador;
